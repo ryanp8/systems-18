@@ -6,7 +6,7 @@
 #define READ 0
 #define WRITE 1
 
-void process_string(char* str);
+void to_lower_case(char* str);
 
 int main() {
 
@@ -25,18 +25,21 @@ int main() {
     close(cw_fds[WRITE]);
     while (1) {
       printf("input: ");
-      char buf[1024];
+      char buf[256];
       fgets(buf, sizeof(buf), stdin);
-      write(pw_fds[WRITE], buf, strlen(buf));
+      write(pw_fds[WRITE], buf, sizeof(buf));
+      char new_buf[1024];
+      read(cw_fds[READ], new_buf, sizeof(new_buf));
+      printf("all lower: %s", new_buf);
      }
   }
   else {
     close(pw_fds[WRITE]);
     close(cw_fds[READ]);
-    char input_buf[1024];
+    char input_buf[256];
     while(read(pw_fds[READ], input_buf, sizeof(input_buf))) {
-      process_string(input_buf);
-      write(cw_fds[WRITE], input_buf, strlen(input_buf));
+      to_lower_case(input_buf);
+      write(cw_fds[WRITE], input_buf, sizeof(input_buf));
     }
   }
   
@@ -44,6 +47,11 @@ int main() {
 }
 
 
-void process_string(char *str) {
-  str[0] = '$';
+void to_lower_case(char *str) {
+  int i;
+  for (i = 0; i < strlen(str); i++) {
+    if (str[i] >= 65 && str[i] <= 90) {
+      str[i] += 32;
+    }
+  }
 }
